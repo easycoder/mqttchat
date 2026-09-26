@@ -1,0 +1,3 @@
+# DreamHost serves .webmanifest as text/plain unless told otherwise, and Chrome wants a JSON
+# type for a manifest. Everything else is left to the host's defaults.
+AddType application/manifest+json .webmanifest

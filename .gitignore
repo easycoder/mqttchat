@@ -1,0 +1,27 @@
+# MQTT credentials — never commit these.
+# The service reads `credentials` (or MQTTCHAT_CREDENTIALS); the local development
+# client reads `mqttchat-credentials.json` from this directory.
+credentials
+mqttchat-credentials.json
+*.example.com.txt
+
+# The access token that gates the service.
+token
+
+# Deployment target details
+deploy.conf
+
+# This project's own notes and session log: they name the broker, the LAN and the hosting
+# layout, so they belong to a deployment rather than to the code.
+conversation/
+DIFF.md
+
+# Python
+__pycache__/
+*.pyc
+
+# Tool state
+.reasonix/
+
+# Generated: the sanitised starter (make-starter.sh)
+dist/

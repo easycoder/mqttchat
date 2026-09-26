@@ -1,0 +1,17 @@
+{
+    "#doc": "MqttChat as an installable app: what the launcher shows and what the splash looks like.",
+    "name": "MqttChat",
+    "short_name": "MqttChat",
+    "description": "Ask the model on the PC a question, over MQTT.",
+    "start_url": "./mqttchat.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#fdfdfd",
+    "theme_color": "#1f3b57",
+    "icons": [
+        { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ]
+}

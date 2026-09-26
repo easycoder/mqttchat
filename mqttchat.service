@@ -1,0 +1,49 @@
+# mqttchat.service — user unit for the MqttChat service on the PC that holds the GPU.
+#
+# A *user* unit (systemctl --user), so no sudo is needed to install, restart or read its
+# journal. The service runs straight out of the dev folder, which Syncthing keeps level
+# with this laptop — there is nothing to copy after an edit, only a restart.
+#
+# Setup on the PC:
+#   1. Make sure Ollama is running and the model below is pulled:
+#        ollama list
+#        ollama pull qwen3.5:4b
+#   2. Give the service its access token — this is the secret the page asks for, and the
+#      only thing standing between a stranger and the GPU. Either:
+#        echo 'the-shared-secret' > ~/dev/mqttchat/token && chmod 600 ~/dev/mqttchat/token
+#      or set MQTTCHAT_TOKEN in the [Service] section below.
+#      (MQTT credentials are fetched from https://chat.example.com/credentials.php at
+#      startup; put a file named `credentials` next to the script instead if you would
+#      rather the PC did not depend on the website.)
+#   3. Install and start it:
+#        mkdir -p ~/.config/systemd/user
+#        cp ~/dev/mqttchat/mqttchat.service ~/.config/systemd/user/
+#        systemctl --user daemon-reload
+#        systemctl --user enable --now mqttchat
+#        loginctl enable-linger you     # so it runs without you logged in, and at boot
+#   4. Watch it:
+#        systemctl --user status mqttchat
+#        journalctl --user -u mqttchat -f
+#
+# After editing mqttchat-server.as or as_chat.py: systemctl --user restart mqttchat
+
+[Unit]
+Description=MqttChat server (MQTT + Ollama)
+
+[Service]
+Type=simple
+WorkingDirectory=/home/you/dev/mqttchat
+ExecStart=/home/you/.local/bin/allspeak mqttchat-server.as
+Restart=on-failure
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+# Answers stay loaded this long after each question, so a follow-up is fast; the service
+# hands the GPU back sooner than that the moment video work wants it.
+Environment=MQTTCHAT_KEEP_ALIVE=5m
+# This is what the PC has pulled (ollama list); the plugin's own default is the same.
+Environment=MQTTCHAT_MODEL=qwen3.5:4b
+# Environment=MQTTCHAT_TOKEN=the-shared-secret
+# Environment=MQTTCHAT_OLLAMA_URL=http://localhost:11434
+
+[Install]
+WantedBy=default.target

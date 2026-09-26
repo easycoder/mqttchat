@@ -1,0 +1,13 @@
+# Copy this file to deploy.conf and adjust. deploy.conf is gitignored
+# (machine-specific connection details).
+#
+# Default rsync target when no command-line target is given to deploy.sh:
+#   $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
+#
+# chat.example.com's web root is on the same DreamHost account as doclets, and this
+# laptop's key is accepted there without its host key having been accepted for
+# chat.example.com itself — so deploy through www.example.com.
+DEPLOY_USER=you
+DEPLOY_HOST=www.example.com
+DEPLOY_PATH=/home/you/chat.example.com
+# DEPLOY_PORT=22

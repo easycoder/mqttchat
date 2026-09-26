@@ -1,0 +1,1 @@
+{"broker":"mqtt.example.org","username":"YOUR_USERNAME","password":"YOUR_PASSWORD","topic":"aa:bb:cc:dd:ee:ff/chat"}

@@ -1,0 +1,113 @@
+{
+    "#doc": "MqttChat screen: header, question box, streaming answer.",
+    "#element": "div",
+    "@id": "mqttchat-screen",
+    "display": "flex",
+    "flex-direction": "column",
+    "gap": "0.6em",
+    "box-sizing": "border-box",
+    "height": "100%",
+    "padding": "0.5em",
+    "font-family": "sans-serif",
+    "font-size": "16px",
+    "#": ["$Header", "$AskPanel", "$AnswerView"],
+
+    "$Header": {
+        "#element": "div",
+        "@id": "Header",
+        "display": "flex",
+        "align-items": "baseline",
+        "gap": "0.6em",
+        "#": ["$Title", "$Status", "$TokenButton"],
+
+        "$Title": {
+            "#element": "h1",
+            "@id": "Title",
+            "#content": "MqttChat",
+            "margin": "0",
+            "font-size": "1.15em"
+        },
+
+        "$Status": {
+            "#element": "div",
+            "@id": "Status",
+            "#content": "Connecting…",
+            "flex": "1",
+            "text-align": "right",
+            "color": "#666",
+            "font-size": "0.8em"
+        },
+
+        "$TokenButton": {
+            "#element": "button",
+            "@id": "TokenButton",
+            "#content": "Set token",
+            "font-size": "0.8em",
+            "padding": "0.2em 0.6em"
+        }
+    },
+
+    "$AskPanel": {
+        "#element": "div",
+        "@id": "AskPanel",
+        "display": "flex",
+        "gap": "0.5em",
+        "align-items": "stretch",
+        "#": ["$PromptInput", "$PromptButtons"],
+
+        "$PromptInput": {
+            "#element": "textarea",
+            "@id": "PromptInput",
+            "@rows": "2",
+            "@placeholder": "Ask something…",
+            "flex": "1",
+            "font-family": "inherit",
+            "font-size": "1em",
+            "padding": "0.4em",
+            "box-sizing": "border-box",
+            "resize": "vertical"
+        },
+
+        "$PromptButtons": {
+            "#element": "div",
+            "@id": "PromptButtons",
+            "display": "flex",
+            "flex-direction": "column",
+            "gap": "0.4em",
+            "min-width": "4.5em",
+            "#": ["$ClearButton", "$AskButton"],
+
+            "$ClearButton": {
+                "#element": "button",
+                "@id": "ClearButton",
+                "#content": "Clear",
+                "flex": "1",
+                "min-height": "2.6em",
+                "font-size": "0.9em",
+                "color": "#555"
+            },
+
+            "$AskButton": {
+                "#element": "button",
+                "@id": "AskButton",
+                "#content": "Ask",
+                "flex": "1",
+                "min-height": "2.6em",
+                "font-size": "1em"
+            }
+        }
+    },
+
+    "$AnswerView": {
+        "#element": "div",
+        "@id": "AnswerView",
+        "flex": "1",
+        "overflow-y": "auto",
+        "border": "1px solid #ccc",
+        "border-radius": "0.3em",
+        "padding": "0.6em",
+        "line-height": "1.45",
+        "word-wrap": "break-word",
+        "background": "#fdfdfd"
+    }
+}

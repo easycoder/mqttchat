@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MqttChat</title>
+  <meta name="description" content="Ask the model on the PC a question, over MQTT." />
+  <meta name="theme-color" content="#1f3b57" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="MqttChat" />
+  <link rel="manifest" href="mqttchat.webmanifest" />
+  <link rel="icon" href="favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <script>function print(msg) { console.log(msg); }</script>
+  <script type="text/javascript" src="https://allspeak.ai/dist/allspeak-min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+  <pre id="allspeak-script" style="display:none">
+!  MqttChat loader
+
+        script Loader
+
+        variable Script
+        rest get Script from `mqttchat-main.as?v=` cat now
+        run Script
+  </pre>
+  <script>
+  // Add to Home Screen installs the page as an app: the worker serves the shell network-first,
+  // so a reload always picks up a new build while there is a connection, and the page still
+  // opens (and says so) when there is not.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('mqttchat-sw.js');
+    });
+  }
+  </script>
+</body>
+</html>

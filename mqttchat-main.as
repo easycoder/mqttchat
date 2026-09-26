@@ -1,0 +1,420 @@
+!   mqttchat-main.as
+
+!! MqttChat client: ask a question from a phone or laptop and watch the answer stream in.
+!!
+!! The page talks to the chat service over MQTT and nothing else, so the phone never needs to
+!! reach the PC. A question goes out on the service topic as the access token, a newline, then
+!! the question; the answer comes back on this browser's own topic as a run of `CHUNK|` messages
+!! ended by `DONE|` (answered) or `ERROR|` (refused or failed).
+!!
+!! Everything the client uses is declared up front: AllSpeak wants declarations before use.
+
+    script MqttChat
+
+    div Body
+    div StatusLine
+    button TokenButton
+    textarea PromptInput
+    button ClearButton
+    button AskButton
+    div AnswerView
+
+    variable Layout
+    variable Credentials
+    variable Broker
+    variable Username
+    variable Password
+    variable ServiceTopic
+    variable MyID
+    variable ReplyTopicName
+    variable ChatToken
+
+    variable Prompt
+    variable Payload
+    variable ReplyText
+    variable Chunk
+    variable AnswerText
+    variable Escaped
+    variable StatusMessage
+    variable Reason
+
+    variable Waiting
+    variable WaitCount
+    variable MaxWait
+
+    topic RequestTopic
+    topic MyTopic
+!! @hash 0d1a3d82
+!!!
+
+!! Boot: read the MQTT credentials, open the connection, register the handlers.
+!!
+!! Localhost development reads `mqttchat-credentials.json` from this directory; anywhere else the
+!! page fetches that same JSON from the deployed credentials endpoint. The file carries broker,
+!! username, password and the service topic — never the access token, which is typed by hand.
+!!
+!! This page's own reply topic is built underneath the service topic, not named on its own: the
+!! broker gives the page's account access to that namespace and nothing else, so a reply topic
+!! outside it would never be delivered.
+
+    put `MqttChat-` cat random 999999 into MyID
+    put 300 into MaxWait
+
+    if the hostname is `localhost`
+    begin
+        rest get Credentials from `mqttchat-credentials.json?v=` cat now
+            or go to AbandonShip
+    end
+    else
+    begin
+        rest get Credentials from `https://chat.example.com/credentials.php?v=` cat now
+            or go to AbandonShip
+    end
+
+    put element `broker` of Credentials into Broker
+    put element `username` of Credentials into Username
+    put element `password` of Credentials into Password
+    put element `topic` of Credentials into ServiceTopic
+
+    if Broker is empty go to AbandonShip
+    if ServiceTopic is empty go to NoServiceTopic
+
+    put ServiceTopic cat `/reply-` cat random 999999 into ReplyTopicName
+
+    init RequestTopic
+        name ServiceTopic
+        qos 1
+
+    init MyTopic
+        name ReplyTopicName
+        qos 1
+
+    mqtt
+        token Username Password
+        id MyID
+        broker Broker
+        port 443
+        subscribe MyTopic
+
+    on mqtt connect go to Connected
+
+    on mqtt message
+    begin
+        put the mqtt message into ReplyText
+        gosub to HandleReply
+    end
+
+    on mqtt error
+    begin
+        alert `MQTT connection failed: ` cat the mqtt error
+    end
+
+    stop
+!! @hash fb8ce340
+!!!
+
+!! On first connection: build the screen, attach the elements, register the tap handlers.
+!!
+!! A phone gets the full width; a desktop browser gets a centred column. The handlers are
+!! registered only once the elements exist, so a tap can never fire against an unattached
+!! variable.
+
+Connected:
+    set the title to `MqttChat`
+    clear Waiting
+
+    create Body
+    if mobile
+    begin
+        set style `width` of Body to `100%`
+    end
+    else
+    begin
+        set style `width` of Body to `44em`
+        set style `margin` of Body to `0 auto`
+        set style `border` of Body to `1px solid lightgray`
+    end
+    set style `height` of Body to `calc(100vh - 1em)`
+
+    rest get Layout from `mqttchat.json?v=` cat now
+        or go to AbandonShip
+    render Layout in Body
+
+    attach StatusLine to `Status`
+    attach TokenButton to `TokenButton`
+    attach PromptInput to `PromptInput`
+    attach ClearButton to `ClearButton`
+    attach AskButton to `AskButton`
+    attach AnswerView to `AnswerView`
+
+    on click ClearButton go to ClearClick
+    on click AskButton go to AskClick
+    on click TokenButton go to TokenClick
+
+    gosub to ShowTokenState
+    gosub to SetStatus with `Ready`
+
+    stop
+!! @hash 7e7f3270
+!!!
+
+!! Empty the question box and put the cursor in it, ready for the next question.
+!!
+!! The box keeps the question after asking — often worth re-reading while the answer arrives —
+!! so this is the way to start the next one without backspacing over the last. The answer is
+!! deliberately left alone: it is still being read.
+
+ClearClick:
+    set the content of PromptInput to empty
+    focus PromptInput
+    gosub to SetStatus with `Cleared`
+    return
+!! @hash 6198df3a
+!!!
+
+!! Ask: take the question from the box, make sure a token is held, and send it to the service.
+!!
+!! The answer is not waited for here — the MQTT handler paints each chunk as it arrives, and the
+!! loop at the end only watches for the answer to finish, or for the service to stay silent.
+
+AskClick:
+    put the content of PromptInput into Prompt
+    if Prompt is empty
+    begin
+        gosub to SetStatus with `Type a question first`
+        return
+    end
+
+    gosub to EnsureToken
+    if ChatToken is empty
+    begin
+        gosub to SetStatus with `No access token - tap Set token`
+        return
+    end
+
+    clear Waiting
+    put empty into AnswerText
+    set the content of AnswerView to empty
+    disable AskButton
+    gosub to SetStatus with `Thinking...`
+
+    put ChatToken cat newline cat Prompt into Payload
+    set Waiting
+    send to RequestTopic
+        sender MyTopic
+        action `ask`
+        message Payload
+
+    put 0 into WaitCount
+    while Waiting
+    begin
+        wait 1 second
+        add 1 to WaitCount
+        if WaitCount is greater than MaxWait
+        begin
+            clear Waiting
+            enable AskButton
+            gosub to SetStatus with `No answer - is the chat service running?`
+        end
+    end
+    return
+!! @hash bf033ff1
+!!!
+
+!! Dispatch one reply from the service by its tag.
+!!
+!! `CHUNK|` carries answer text, `DONE|` ends an answer, `ERROR|` reports a refused or failed
+!! request. Anything else is logged and dropped.
+!!
+!! The client is tagged like this because the browser runtime hands a script only the `message`
+!! field of a payload, never its `action`.
+
+HandleReply:
+    if left 6 of ReplyText is `CHUNK|`
+    begin
+        gosub to AppendChunk
+        return
+    end
+    if left 5 of ReplyText is `DONE|`
+    begin
+        gosub to FinishAnswer
+        return
+    end
+    if left 6 of ReplyText is `ERROR|`
+    begin
+        gosub to FailAnswer
+        return
+    end
+    log `Ignoring unexpected reply: ` cat left 40 of ReplyText
+    return
+!! @hash b5b9a924
+!!!
+
+!! Append one streamed fragment to the answer and repaint it.
+!!
+!! `set the content of` writes HTML, so the text is escaped on the way in and newlines become
+!! <br>. Whatever the model says therefore shows as text, however it is punctuated.
+
+AppendChunk:
+    put from 6 of ReplyText into Chunk
+    put AnswerText cat Chunk into AnswerText
+
+    put AnswerText into Escaped
+    replace `&` with `&amp;` in Escaped
+    replace `<` with `&lt;` in Escaped
+    replace `>` with `&gt;` in Escaped
+    replace newline with `<br>` in Escaped
+    set the content of AnswerView to Escaped
+    set the style `color` of AnswerView to `#111`
+    return
+!! @hash 7f16e012
+!!!
+
+!! The answer is complete: re-enable the button and say how long it took.
+!!
+!! The service puts the elapsed time after the `DONE|` marker, e.g. `DONE|8.4s`.
+
+FinishAnswer:
+    clear Waiting
+    enable AskButton
+    put from 5 of ReplyText into StatusMessage
+    put `Answered in ` cat StatusMessage into StatusMessage
+    gosub to SetStatus with StatusMessage
+    return
+!! @hash 5f078527
+!!!
+
+!! The service refused or failed: show why, in red, and let the user try again.
+!!
+!! A refusal that names the token is the one failure the user can do something about, so it
+!! also forgets the stored token and brings the Set token button back — the next Ask then
+!! prompts for a new one. Anything else is the service's or the model's to explain.
+!!
+!! The reason goes through SetStatus as a value rather than through the variable SetStatus
+!! writes, so the panel and the status line cannot disagree about what happened.
+
+FailAnswer:
+    clear Waiting
+    enable AskButton
+    put from 6 of ReplyText into Reason
+    if Reason is `access token refused` gosub to ForgetToken
+    else gosub to SetStatus with Reason
+    set the content of AnswerView to Reason
+    set the style `color` of AnswerView to `#a00`
+    return
+!! @hash 6dcf796e
+!!!
+
+!! The token this device holds is no longer the service's — a rotated one, or a typo.
+
+ForgetToken:
+    remove `chat-token` from storage
+    clear ChatToken
+    gosub to ShowTokenState
+    gosub to SetStatus with `Token refused - tap Set token`
+    return
+!! @hash 05cef231
+!!!
+!! @hash 8373a760
+!!!
+
+!! Hold an access token: read the stored one, prompting for it only when none is held.
+!!
+!! The token is the only thing between a stranger and the PC, and it lives in browser storage
+!! after the first entry, so it is typed once per device.
+
+EnsureToken:
+    get ChatToken from storage as `chat-token`
+    if ChatToken is `null` clear ChatToken
+    if ChatToken is `undefined` clear ChatToken
+    if ChatToken is empty
+    begin
+        put prompt `Enter the MqttChat access token` into ChatToken
+        if ChatToken is `null` clear ChatToken
+        if ChatToken is `undefined` clear ChatToken
+        if ChatToken is not empty
+        begin
+            put trim ChatToken into ChatToken
+            put ChatToken into storage as `chat-token`
+        end
+    end
+    gosub to ShowTokenState
+    return
+!! @hash 92fba4b1
+!!!
+
+!! Replace the stored token — and when the prompt comes back empty or cancelled, leave it be.
+!!
+!! A cancelled prompt and a blank one cannot be told apart: the browser answers null for Cancel
+!! and an empty string for a blank OK, and the runtime turns both into an empty value. So empty
+!! is treated as "no change" rather than as "forget" — the button sets a token, and the way to
+!! move to a different one is to type it. It is only on screen when a token is needed at all
+!! (see ShowTokenState), so this is a first-time or after-a-refusal path.
+
+TokenClick:
+    put prompt `MqttChat access token` into ChatToken
+    if ChatToken is `null` return
+    if ChatToken is `undefined` return
+    put trim ChatToken into ChatToken
+    if ChatToken is empty
+    begin
+        gosub to SetStatus with `Token unchanged`
+    end
+    else
+    begin
+        put ChatToken into storage as `chat-token`
+        gosub to SetStatus with `Token stored`
+    end
+    gosub to ShowTokenState
+    return
+!! @hash 3956e584
+!!!
+
+!! Show the Set token button only while this device has no usable token.
+!!
+!! With one shared token there is nothing to choose and nothing to change: once a token is
+!! stored the button is only in the way, so it is hidden. It reappears when the token is
+!! missing, or when the service refuses it (see ForgetToken) — which is also how a rotated
+!! token reaches a device that already had one.
+
+ShowTokenState:
+    get ChatToken from storage as `chat-token`
+    if ChatToken is `null` clear ChatToken
+    if ChatToken is `undefined` clear ChatToken
+    if ChatToken is empty
+    begin
+        set the content of TokenButton to `Set token`
+        set the style `display` of TokenButton to `inline-block`
+    end
+    else
+    begin
+        set the style `display` of TokenButton to `none`
+    end
+    return
+!! @hash f34adfc8
+!!!
+
+!! Show a short status message beside the title.
+
+SetStatus:
+    put parameter 0 into StatusMessage
+    set the content of StatusLine to StatusMessage
+    return
+!! @hash c2989ea7
+!!!
+
+!! The credentials could not be fetched, so there is nothing to connect to.
+
+AbandonShip:
+    alert `MqttChat could not fetch its MQTT credentials. Reload the page to try again.`
+    stop
+!! @hash 216c6fc7
+!!!
+
+!! The credentials arrived but carry no service topic, so questions have nowhere to go.
+
+NoServiceTopic:
+    alert `MQTT credentials have no topic entry. Add one for the chat service.`
+    stop
+!! @hash df193571
+!!!
