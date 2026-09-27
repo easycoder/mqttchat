@@ -10,12 +10,12 @@ ask the human for, and where this repository's own deployment is hard-coded. The
 ## What you are building
 
 ```
-   phone / laptop                    broker                    PC with the model
-  ┌──────────────┐            ┌──────────────────┐          ┌──────────────────────┐
-  │ the page     │  ask ─────▶│                  │─────────▶│ mqttchat-server.as   │
-  │ (static)     │            │   <topic>/chat   │          │  └ as_chat.py        │
-  │              │  ◀─ chunks │                  │◀─────────│     └ Ollama         │
-  └──────────────┘            └──────────────────┘          └──────────────────────┘
+   phone / laptop                    broker                       PC with the model
+  ┌──────────────┐            ┌──────────────────┐          ┌───────────────────────────┐
+  │ the page     │  ask ─────▶│                  │─────────▶│ mqttchat-server.allspeak  │
+  │ (static)     │            │  <topic>/chat    │          │  └ as_chat.py             │
+  │              │  ◀─ chunks │                  │◀─────────│     └ Ollama              │
+  └──────────────┘            └──────────────────┘          └───────────────────────────┘
 ```
 
 Three parts, and only one of them has a door to the internet:
@@ -134,7 +134,7 @@ in its browser stops being accepted, the page forgets it, and it asks for the ne
 
 ## 4. The service, on the PC
 
-Copy nothing: run it from the project directory. It reads `mqttchat-server.as` and `as_chat.py`
+Copy nothing: run it from the project directory. It reads `mqttchat-server.allspeak` and `as_chat.py`
 from its working directory, so a checkout that both machines can see is simplest.
 
 ```
@@ -152,7 +152,7 @@ questions. The service waits a couple of minutes for its first answer if the mod
 
 ## 5. The page
 
-Two files that a browser fetches (`mqttchat.html`, `mqttchat-main.as`), the layout
+Two files that a browser fetches (`mqttchat.html`, `mqttchat-main.allspeak`), the layout
 (`mqttchat.json`), and the PWA extras (manifest, service worker, icons). `deploy.sh` copies
 them; `--infra` also adds `.htaccess` (so the manifest is served as JSON) and
 `credentials.php`.
@@ -175,17 +175,17 @@ Hand it these when the questions come, rather than letting it guess:
 
 ## 7. Where this repository is hard-coded
 
-If you are adapting *this* copy rather than starting from the starter, these are the places the
-original deployment is baked in — change all of them or none:
+This repository *is* a working deployment, not a blank template, so the original names are
+baked in. Change them all or none:
 
 | File | What to change |
 |---|---|
-| `mqttchat-main.as` | the credentials URL it fetches (and the localhost fallback) |
+| `mqttchat-main.allspeak` | the credentials URL it fetches (and the localhost fallback) |
 | `mqttchat.json`, `mqttchat.html`, `mqttchat.webmanifest` | nothing — but the icons and title are personal taste |
 | `mqttchat.service` | `WorkingDirectory`, `ExecStart`, `MQTTCHAT_MODEL` |
-| `credentials.php`, `chat.example.com.txt.example` | the host the credentials file is named after |
+| `credentials.php`, `chat.eclecity.net.txt.example` | the host the credentials file is named after |
 | `deploy.sh`, `deploy.conf.example` | the host and path the page is deployed to |
-| `README.md`, `DIFF.md` | the deployment story — the starter has its own |
+| `README.md` | the deployment story — rewrite it as yours |
 
 ## 8. Testing it without a browser
 

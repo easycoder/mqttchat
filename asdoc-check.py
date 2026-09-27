@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""asdoc-check.py — validate doc blocks in AllSpeak (.as) source files.
+"""asdoc-check.py — validate doc blocks in AllSpeak (.allspeak) source files.
 
 Doc-block convention (see prompt-260509.md for design notes). A "section"
 looks like this:
@@ -25,14 +25,14 @@ Usage:
   asdoc-check.py [options] <path> [<path> ...]
 
   Each <path> is a file or a directory. Directories are walked for files
-  matching --ext (default .as).
+  matching --ext (default .allspeak).
 
 Options:
   --write       Insert/update "!! @hash" lines so they match the current
                 code. Never touches @verified. Without this flag the tool
                 is read-only.
   --json        Emit a JSON report on stdout instead of human-readable text.
-  --ext .EXT    Extension to match when walking directories (default .as).
+  --ext .EXT    Extension to match when walking directories (default .allspeak).
   --strict      Treat warnings as errors for exit-code purposes.
   --self-test   Run built-in fixtures and exit.
 
@@ -517,15 +517,15 @@ def run_self_test():
 def main(argv):
     ap = argparse.ArgumentParser(
         prog='asdoc-check',
-        description='Validate doc blocks in AllSpeak (.as) sources.',
+        description='Validate doc blocks in AllSpeak (.allspeak) sources.',
     )
     ap.add_argument('paths', nargs='*', help='files or directories')
     ap.add_argument('--write', action='store_true',
                     help='insert/update !! @hash lines in place')
     ap.add_argument('--json', action='store_true',
                     help='emit JSON report')
-    ap.add_argument('--ext', default='.as',
-                    help='extension to match when walking dirs (default .as)')
+    ap.add_argument('--ext', default='.allspeak',
+                    help='extension to match when walking dirs (default .allspeak)')
     ap.add_argument('--strict', action='store_true',
                     help='treat warnings as errors for exit code')
     ap.add_argument('--self-test', action='store_true',

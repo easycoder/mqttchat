@@ -1,9 +1,9 @@
 !!  Tabbed script editor with auto-save and external change detection.
-!!  Served by server.as locally, or any web server with /list, /read, /write routes.
-!   asedit.as
+!!  Served by server.allspeak locally, or any web server with /list, /read, /write routes.
+!   asedit.allspeak
 
     script ASEditor
-!! @hash 7ad312d2
+!! @hash 57eacdb1
 !! @verified 7ad312d2
 !!!
 !! Variable declarations
@@ -230,7 +230,7 @@ SetStrings:
         put `Ricaricato` into StrReloaded
         put `Modifica esterna rilevata` into StrExtChange
         put `Impossibile connettersi al server` into StrNoConnect
-        put `Salva come (nome file senza .as):` into StrSaveAs
+        put `Salva come (nome file senza .allspeak):` into StrSaveAs
         put `(cartella vuota)` into StrEmpty
         put `.. (livello superiore)` into StrUpLevel
         put `/ (radice progetto)` into StrRoot
@@ -247,7 +247,7 @@ SetStrings:
         put `Rechargé` into StrReloaded
         put `Modification externe détectée` into StrExtChange
         put `Impossible de se connecter au serveur` into StrNoConnect
-        put `Enregistrer sous (nom de fichier sans .as) :` into StrSaveAs
+        put `Enregistrer sous (nom de fichier sans .allspeak) :` into StrSaveAs
         put `(dossier vide)` into StrEmpty
         put `.. (niveau supérieur)` into StrUpLevel
         put `/ (racine du projet)` into StrRoot
@@ -264,7 +264,7 @@ SetStrings:
         put `Neu geladen` into StrReloaded
         put `Externe Änderung erkannt` into StrExtChange
         put `Verbindung zum Server nicht möglich` into StrNoConnect
-        put `Speichern unter (Dateiname ohne .as):` into StrSaveAs
+        put `Speichern unter (Dateiname ohne .allspeak):` into StrSaveAs
         put `(leerer Ordner)` into StrEmpty
         put `.. (Ebene höher)` into StrUpLevel
         put `/ (Projektstamm)` into StrRoot
@@ -281,7 +281,7 @@ SetStrings:
         put `Reloaded` into StrReloaded
         put `External change detected` into StrExtChange
         put `Cannot connect to server` into StrNoConnect
-        put `Save as (filename without .as):` into StrSaveAs
+        put `Save as (filename without .allspeak):` into StrSaveAs
         put `(empty directory)` into StrEmpty
         put `.. (up one level)` into StrUpLevel
         put `/ (project root)` into StrRoot
@@ -291,7 +291,7 @@ SetStrings:
     set the content of OpenBtn to StrOpen
     set the content of FindBtn to StrFind
     set the content of CloseBtn to StrClose
-!! @hash 57698f27
+!! @hash 5633e443
 !! @verified 57698f27
 !!!
 !! The editor checks on startup and periodically for updates to itself.
@@ -405,7 +405,7 @@ AutoSave:
                 fork to AutoSave
                 stop
             end
-            put File cat `.as` into File
+            put File cat `.allspeak` into File
             ! Save into the currently browsed directory
             if CurrentPath is not empty
                 put CurrentPath cat `/` cat File into File
@@ -429,7 +429,7 @@ SaveFailed:
     fork to ClearStatus
     fork to AutoSave
     stop
-!! @hash a9c8ba92
+!! @hash 63538f67
 !! @verified a9c8ba92
 !!!
 !! Every 3 seconds, the current file is re-read into FileContent.
@@ -827,7 +827,7 @@ ClearStatus:
 !!!
 !! Blocks parser. Walks the current Source line-by-line and populates the per-section arrays (Start, End, Prose, Code, Hash, Verified, HashState, VerifyState) plus the Outside-content array used to preserve text between sections during rebuild.
 !!
-!! Same classifier logic as tools/asdoc-check.as — the spec is one source of truth even though the code is duplicated here for the editor's in-process use.
+!! Same classifier logic as tools/asdoc-check.allspeak — the spec is one source of truth even though the code is duplicated here for the editor's in-process use.
 ParseSource:
     put 0 into SecCount
     put 0 into InSection

@@ -1,4 +1,4 @@
-!   mqttchat-server.as
+!   mqttchat-server.allspeak
 
     script MqttChatServer
 
@@ -30,7 +30,7 @@
     if file `credentials` exists load Credentials from `credentials`
     else
     begin
-        get Credentials from url `https://chat.example.com/credentials.php`
+        get Credentials from url `https://chat.eclecity.net/credentials.php`
             or go to NoCredentials
     end
     put json Credentials into CredDict
@@ -43,7 +43,7 @@
     log `Service topic is ` cat ServiceTopic
 
     if ServiceTopic is empty go to NoTopic
-!! @hash e4c6cfd4
+!! @hash 04a76cc4
 !!!
 
 !! Connect, subscribe, and then poll and beat — the whole of the service's own work.

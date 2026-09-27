@@ -1,4 +1,4 @@
-!   mqttchat-main.as
+!   mqttchat-main.allspeak
 
 !! MqttChat client: ask a question from a phone or laptop and watch the answer stream in.
 !!
@@ -67,7 +67,7 @@
     end
     else
     begin
-        rest get Credentials from `https://chat.example.com/credentials.php?v=` cat now
+        rest get Credentials from `https://chat.eclecity.net/credentials.php?v=` cat now
             or go to AbandonShip
     end
 
@@ -110,7 +110,7 @@
     end
 
     stop
-!! @hash fb8ce340
+!! @hash b3b45f10
 !!!
 
 !! On first connection: build the screen, attach the elements, register the tap handlers.

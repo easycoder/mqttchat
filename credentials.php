@@ -3,7 +3,7 @@
 //
 // The file is named after the host that asks for it, so several sites on one account can
 // each have their own credentials without another script. For this project, that is
-// chat.example.com.txt one level above the web root — see README.md.
+// chat.eclecity.net.txt one level above the web root — see README.md.
 //
 // It holds no access token: the token is typed into the page by the user, and the service
 // on the PC is the only thing that checks it.

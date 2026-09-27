@@ -4,10 +4,10 @@
 # Default rsync target when no command-line target is given to deploy.sh:
 #   $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
 #
-# chat.example.com's web root is on the same DreamHost account as doclets, and this
+# chat.eclecity.net's web root is on the same DreamHost account as doclets, and this
 # laptop's key is accepted there without its host key having been accepted for
-# chat.example.com itself — so deploy through www.example.com.
-DEPLOY_USER=you
-DEPLOY_HOST=www.example.com
-DEPLOY_PATH=/home/you/chat.example.com
+# chat.eclecity.net itself — so deploy through doclets.eclecity.net.
+DEPLOY_USER=eclecity
+DEPLOY_HOST=doclets.eclecity.net
+DEPLOY_PATH=/home/eclecity/chat.eclecity.net
 # DEPLOY_PORT=22

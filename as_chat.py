@@ -2,7 +2,7 @@
 """
 Chat plugin for AllSpeak — answers MQTT questions from a local Ollama model.
 
-`mqttchat-server.as` owns the MQTT connection; this plugin owns everything behind it:
+`mqttchat-server.allspeak` owns the MQTT connection; this plugin owns everything behind it:
 the access token, the /api/chat stream, and the GPU hand-back.
 
 Vocabulary:

@@ -3,7 +3,7 @@
 # client reads `mqttchat-credentials.json` from this directory.
 credentials
 mqttchat-credentials.json
-*.example.com.txt
+*.eclecity.net.txt
 
 # The access token that gates the service.
 token
@@ -11,10 +11,20 @@ token
 # Deployment target details
 deploy.conf
 
-# This project's own notes and session log: they name the broker, the LAN and the hosting
-# layout, so they belong to a deployment rather than to the code.
+# This deployment's own notes, and the write-up before it is published. They name the broker,
+# the LAN and the hosting layout, so they belong to the deployment rather than to the code.
 conversation/
 DIFF.md
+ARTICLE-DRAFT.md
+
+# One-off probes for this machine's services (allspeak, rbrchat), not part of the app.
+apps.sh
+survey_apps.sh
+stop_apps.sh
+
+# A downloaded snapshot of the AllSpeak dev environment (allspeak.ai/code). The files this
+# project needs from it are already in the tree.
+allspeak-en.zip
 
 # Python
 __pycache__/
@@ -23,5 +33,6 @@ __pycache__/
 # Tool state
 .reasonix/
 
-# Generated: the sanitised starter (make-starter.sh)
-dist/
+# The AllSpeak dev environment's own version marker (server.allspeak rewrites it when it
+# updates itself); local state, not part of the app.
+.code-version

@@ -12,8 +12,8 @@
  * origin (the AllSpeak bundle, MQTT.js) — nothing here has any business holding a secret.
  */
 
-const SHELL = 'mqttchat-shell';
-const SHELL_FILES = ['mqttchat.html', 'mqttchat-main.as', 'mqttchat.json'];
+const SHELL = 'mqttchat-shell-v2';
+const SHELL_FILES = ['mqttchat.html', 'mqttchat-main.allspeak', 'mqttchat.json'];
 
 self.addEventListener('install', function (event) {
     event.waitUntil(

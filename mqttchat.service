@@ -12,7 +12,7 @@
 #      only thing standing between a stranger and the GPU. Either:
 #        echo 'the-shared-secret' > ~/dev/mqttchat/token && chmod 600 ~/dev/mqttchat/token
 #      or set MQTTCHAT_TOKEN in the [Service] section below.
-#      (MQTT credentials are fetched from https://chat.example.com/credentials.php at
+#      (MQTT credentials are fetched from https://chat.eclecity.net/credentials.php at
 #      startup; put a file named `credentials` next to the script instead if you would
 #      rather the PC did not depend on the website.)
 #   3. Install and start it:
@@ -20,20 +20,20 @@
 #        cp ~/dev/mqttchat/mqttchat.service ~/.config/systemd/user/
 #        systemctl --user daemon-reload
 #        systemctl --user enable --now mqttchat
-#        loginctl enable-linger you     # so it runs without you logged in, and at boot
+#        loginctl enable-linger graham     # so it runs without you logged in, and at boot
 #   4. Watch it:
 #        systemctl --user status mqttchat
 #        journalctl --user -u mqttchat -f
 #
-# After editing mqttchat-server.as or as_chat.py: systemctl --user restart mqttchat
+# After editing mqttchat-server.allspeak or as_chat.py: systemctl --user restart mqttchat
 
 [Unit]
 Description=MqttChat server (MQTT + Ollama)
 
 [Service]
 Type=simple
-WorkingDirectory=/home/you/dev/mqttchat
-ExecStart=/home/you/.local/bin/allspeak mqttchat-server.as
+WorkingDirectory=/home/graham/dev/mqttchat
+ExecStart=/home/graham/.local/bin/allspeak mqttchat-server.allspeak
 Restart=on-failure
 RestartSec=5
 Environment=PYTHONUNBUFFERED=1

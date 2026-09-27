@@ -5,7 +5,7 @@ set -euo pipefail
 #
 # The page, its script and layout, and what makes it installable:
 #   mqttchat.html           – the launcher (loads the AllSpeak CDN bundle and MQTT.js)
-#   mqttchat-main.as        – the client script (fetched by the launcher)
+#   mqttchat-main.allspeak  – the client script (fetched by the launcher)
 #   mqttchat.json           – Webson screen layout
 #   mqttchat.webmanifest,
 #   mqttchat-sw.js, icons   – what makes it installable as an app
@@ -66,7 +66,7 @@ if [[ -z "$TARGET" ]]; then
   fi
 fi
 
-CLIENT_FILES=(mqttchat.html mqttchat-main.as mqttchat.json \
+CLIENT_FILES=(mqttchat.html mqttchat-main.allspeak mqttchat.json \
   mqttchat.webmanifest mqttchat-sw.js \
   icon-192.png icon-512.png icon-maskable-512.png apple-touch-icon.png favicon.png)
 INFRA_FILES=(.htaccess credentials.php)
@@ -111,10 +111,10 @@ cat <<'EOF'
 Done.
 
 Reminders:
-- credentials.php reads ../<host>.txt — for chat.example.com that is
-  /home/you/chat.example.com.txt, one level ABOVE the web root. It holds the
+- credentials.php reads ../<host>.txt — for chat.eclecity.net that is
+  /home/eclecity/chat.eclecity.net.txt, one level ABOVE the web root. It holds the
   page's MQTT login (see credentials-local.example) and nothing else.
-- The service picks up a changed mqttchat-server.as / as_chat.py only on restart:
+- The service picks up a changed mqttchat-server.allspeak / as_chat.py only on restart:
   systemctl --user restart mqttchat   (on the PC)
 - Browsers may cache mqttchat.html; hard-refresh (Ctrl+Shift+R) to test immediately.
 EOF

@@ -1,7 +1,7 @@
-!   server.as
+!   server.allspeak
 !   AllSpeak development server.
-!   Usage: allspeak server.as [-t|--tabs page1,page2,...] [port]    (default port: 8080)
-!   Example: allspeak server.as -t edit,test 8080
+!   Usage: allspeak server.allspeak [-t|--tabs page1,page2,...] [port]    (default port: 8080)
+!   Example: allspeak server.allspeak -t edit,test 8080
 !     opens edit.html and test.html in the default browser at localhost:8080
 !
 !   Serves two purposes:
@@ -90,9 +90,9 @@
         if RemoteVersion is not LocalVersion
         begin
             print `Updating from version ` cat LocalVersion cat ` to ` cat RemoteVersion
-            download RepoBase cat `server.as` to BaseDir cat `/server.as`
+            download RepoBase cat `server.allspeak` to BaseDir cat `/server.allspeak`
             download RepoBase cat `asedit.json` to BaseDir cat `/asedit.json`
-            download RepoBase cat `asedit.as` to BaseDir cat `/asedit.as`
+            download RepoBase cat `asedit.allspeak` to BaseDir cat `/asedit.allspeak`
             save RemoteVersion to BaseDir cat `/.code-version`
             print `Update complete`
         end
@@ -122,7 +122,7 @@
         else if FullPath is `/restart`
         begin
             print `Restart requested`
-            system background `sleep 2 && allspeak server.as ` cat Port
+            system background `sleep 2 && allspeak server.allspeak ` cat Port
             return `OK` to Files
             exit
         end
@@ -136,9 +136,9 @@
                 return `Forbidden` to Files with status 403
             end
             if FilePath is empty
-                set FileList to entries in BaseDir type `as,ecs,md,txt,json,html,css,js,py`
+                set FileList to entries in BaseDir type `allspeak,as,ecs,md,txt,json,html,css,js,py`
             else
-                set FileList to entries in BaseDir cat `/` cat FilePath type `as,ecs,md,txt,json,html,css,js,py`
+                set FileList to entries in BaseDir cat `/` cat FilePath type `allspeak,as,ecs,md,txt,json,html,css,js,py`
             return FileList to Files
         end
         else if FullPath starts with `/read/`
@@ -179,6 +179,7 @@
             end
             if FilePath ends with `.html` put `text/html` into MimeType
             else if FilePath ends with `.json` put `application/json` into MimeType
+            else if FilePath ends with `.allspeak` put `text/plain` into MimeType
             else if FilePath ends with `.as` put `text/plain` into MimeType
             else if FilePath ends with `.js` put `application/javascript` into MimeType
             else if FilePath ends with `.css` put `text/css` into MimeType
